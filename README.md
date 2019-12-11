@@ -1,5 +1,5 @@
 # test-repo
-#production jira user license cleanup step
+#production jira user license cleanup step to get user in csv file from DB
 #ssh host-name
 #$ cd /usr/local/ecomm/atlassian/data/mysql/jiraMYSQL/mysql-5.5.13-linux2.6-x86_64
 #$ ./bin/mysql -u root -p --socket=/usr/local/ecomm/atlassian/data/mysql/jiraMYSQL/socket/mysql.sock --port=6666
