@@ -1,0 +1,33 @@
+users="$(/usr/local/ecomm/env/app/mysql/bin/mysql -u root -p PASSWORD -D jiradb -e "SELECT u.user_name FROM cwd_user u JOIN (SELECT DISTINCT child_name FROM cw
+d_membership m JOIN licenserolesgroup gp ON m.parent_name = gp.GROUP_ID) AS m ON m.child_name = u.user_name JOIN ( SELECT * FROM cwd_user_attributes WHERE attrib
+ute_name = 'login.lastLoginMillis' and (from_unixtime(round(cwd_user_attributes.attribute_value/1000))) < (current_date - interval 600 day)) AS a ON a.user_id =
+u.id JOIN cwd_directory d ON u.directory_id = d.id and u.active =1 and u.user_name not in ('ecomjira','atlassian-bot','noc','rm','operationscenter','ecomdwbiopsp
+ipeline','ecomrm_new','jiramonitor','omps')")"
+arr=($users)
+NameArr=()
+singleName=""
+for i in "${arr[@]:1}"
+do
+FullName="$(/usr/local/ecomm/env/app/mysql/bin/mysql -u root -p PASSWORD -D jiradb -e "SELECT display_name FROM cwd_user where user_name='$i' LIMIT 1")"
+FullNameArr=($FullName)
+#curl -u jiraadmin:PASSWORD -X POST http://secaux03.walgreens.com:8095/rest/deactivateusers/1.0/utility/deactivate/user/$i
+echo $i
+Name=${FullNameArr[@]:1}
+NameArr+=("$Name")
+done
+echo ${NameArr[@]}
+for i in "${NameArr[@]}"
+do
+singleName+="<tr><td>${i}</td></tr>"
+done
+echo "<html><body><table>$singleName</table></body><html>" > file.htm
+(
+        echo "From: secaux03@walgreens.com"
+        echo "To: sreeram.ravishankar@walgreens.com"
+        echo "Subject: Jira Users Status Report"
+        echo "Mime-Version: 1.0"
+        echo "Content-Type: text/html"
+        cat /usr/local/ecomm/file.htm
+        echo "                Script location `hostname`:$0"
+) | /usr/sbin/sendmail -t
+#echo ${NameArr[@]}| mail -s "users_to_deativate" sreeram.ravishankar@walgreens.com
